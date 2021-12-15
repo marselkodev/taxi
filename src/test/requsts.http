@@ -1,0 +1,17 @@
+http://localhost:8080/drivers/getAll
+###
+http://localhost:8080/drivers/getById?id=2
+###
+POST http://localhost:8080/drivers/save
+Content-Type: application/json
+
+{
+  "id": 0,
+  "name": "Maks",
+  "phone_number": "88005697852",
+  "photo_url": "photo.png",
+  "license": true,
+  "car_name": "Skoda Rapid",
+  "car_number": "X 407 AB 116",
+  "car_color": "orange"
+}
