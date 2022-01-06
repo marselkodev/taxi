@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class DriverGetByIdResponseDTO {
     private Driver driver;
+
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
@@ -18,10 +19,9 @@ public class DriverGetByIdResponseDTO {
         private String phoneNumber;
         private String photoUrl;
         private double rating;
+        private boolean license;
         private String carName;
         private String carNumber;
         private String carColor;
-        private double position_x;
-        private double position_y;
     }
 }

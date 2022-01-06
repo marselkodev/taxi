@@ -24,7 +24,5 @@ public class DriverGetAllResponseDTO {
         private String carName;
         private String carNumber;
         private String carColor;
-        private double position_x;
-        private double position_y;
     }
 }

@@ -20,11 +20,7 @@ public class DriverRowMapper implements RowMapper<DriverModel> {
                 rs.getBoolean("license"),
                 rs.getString("car_Name"),
                 rs.getString("car_number"),
-                rs.getString("car_color"),
-                rs.getDouble("position_x"),
-                rs.getDouble("position_y")
-
-        );
+                rs.getString("car_color"));
     }
 }
 

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class DriverSaveResponseDTO {
     private DriverSaveResponseDTO.Driver driver;
+
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
@@ -21,7 +22,5 @@ public class DriverSaveResponseDTO {
         private String carName;
         private String carNumber;
         private String carColor;
-        private double position_x;
-        private double position_y;
     }
 }

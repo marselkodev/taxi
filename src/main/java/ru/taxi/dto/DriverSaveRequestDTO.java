@@ -16,6 +16,4 @@ public class DriverSaveRequestDTO {
     private String carName;
     private String carNumber;
     private String carColor;
-    private double positionX;
-    private double positionY;
 }
