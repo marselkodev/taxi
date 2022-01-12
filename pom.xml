@@ -7,8 +7,14 @@
     <groupId>org.example</groupId>
     <artifactId>taxi</artifactId>
     <version>1.0-SNAPSHOT</version>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -23,14 +29,18 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot-starter-web.version>2.6.1</spring-boot-starter-web.version>
         <spring-boot-starter-jdbc.version>2.6.1</spring-boot-starter-jdbc.version>
         <lombok.version>1.18.22</lombok.version>
         <postgresql.version>42.3.1</postgresql.version>
         <google-maps-services.version>1.0.1</google-maps-services.version>
-        <mockito-all.version>1.10.19</mockito-all.version>
-        <junit-jupiter-engine.version>5.8.1</junit-jupiter-engine.version>
+        <spring-boot-starter-test.version>2.6.1</spring-boot-starter-test.version>
+        <junit-jupiter-api.version>5.8.2</junit-jupiter-api.version>
+        <testcontainers.version>1.16.2</testcontainers.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     </properties>
+
     <dependencies>
 
         <dependency>
@@ -71,25 +81,26 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>2.23.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter-engine.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot-starter-test.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
+            <version>${junit-jupiter-api.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

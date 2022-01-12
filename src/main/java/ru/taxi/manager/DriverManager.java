@@ -50,7 +50,7 @@ public class DriverManager {
         final List<DriverModel> drivers = template.query(
                 //language=PostgreSQL
                 """
-                        SELECT id, name, phone_number, photo_url, rating, license, car_name, car_number, car_color FROM drivers
+                        SELECT id, name, phone_number, photo_url, rating, car_name, car_number, car_color FROM drivers
                         WHERE removed = FALSE
                         ORDER BY id
                         LIMIT 100
@@ -82,7 +82,7 @@ public class DriverManager {
             final DriverModel driver = template.queryForObject(
                     //language=PostgreSQL
                     """
-                            SELECT id, name, phone_number, photo_url, rating, license, car_name, car_number, car_color FROM drivers
+                            SELECT id, name, phone_number, photo_url, rating, car_name, car_number, car_color FROM drivers
                             WHERE id = :id AND removed = FALSE
                             """,
                     Map.of("id", id),
@@ -94,7 +94,6 @@ public class DriverManager {
                     driver.getPhoneNumber(),
                     driver.getPhotoUrl(),
                     driver.getRating(),
-                    driver.isLicense(),
                     driver.getCarName(),
                     driver.getCarNumber(),
                     driver.getCarColor()
@@ -119,14 +118,13 @@ public class DriverManager {
         final DriverModel driver = template.queryForObject(
                 //language=PostgreSQL
                 """
-                                        INSERT INTO drivers (name, phone_number, photo_url, license, car_name, car_number, car_color)
+                                        INSERT INTO drivers (name, phone_number, photo_url, car_name, car_number, car_color)
                                         VALUES (:name, :phone_number, :photo_url, :license, :car_name, :car_number, :car_color)
-                                        RETURNING id, name, phone_number, photo_url, rating, license, car_name, car_number, car_color
+                                        RETURNING id, name, phone_number, photo_url, rating, car_name, car_number, car_color
                         """,
                 Map.of("name", requestDTO.getName(),
                         "phone_number", requestDTO.getPhoneNumber(),
                         "photo_url", requestDTO.getPhotoUrl(),
-                        "license", requestDTO.isLicense(),
                         "car_name", requestDTO.getCarName(),
                         "car_number", requestDTO.getCarNumber(),
                         "car_color", requestDTO.getCarColor()),
@@ -159,15 +157,14 @@ public class DriverManager {
             final DriverModel driver = template.queryForObject(
                     //language=PostgreSQL
                     """
-                                            UPDATE drivers SET name = :name, phone_number = :phone_number, photo_url = :photo_url, license = :license, car_name = :car_name, car_number = :car_number, car_color = :car_color
+                                            UPDATE drivers SET name = :name, phone_number = :phone_number, photo_url = :photo_url, car_name = :car_name, car_number = :car_number, car_color = :car_color
                                             WHERE id = :id AND removed = FALSE
-                                            RETURNING id, name, phone_number, photo_url, rating, license, car_name, car_number, car_color
+                                            RETURNING id, name, phone_number, photo_url, rating, car_name, car_number, car_color
                             """,
                     Map.of("id", requestDTO.getId(),
                             "name", requestDTO.getName() != null ? requestDTO.getName() : beforeEdit.getName(),
                             "phone_number", requestDTO.getPhoneNumber() != null && validatePhone(requestDTO.getPhoneNumber()) ? requestDTO.getPhoneNumber() : beforeEdit.getPhoneNumber(),
                             "photo_url", requestDTO.getPhotoUrl() != null ? requestDTO.getPhotoUrl() : beforeEdit.getPhotoUrl(),
-                            "license", requestDTO.isLicense(),
                             "car_name", requestDTO.getCarName() != null ? requestDTO.getCarName() : beforeEdit.getCarName(),
                             "car_number", requestDTO.getCarNumber() != null ? requestDTO.getCarNumber() : beforeEdit.getCarNumber(),
                             "car_color", requestDTO.getCarColor() != null ? requestDTO.getCarColor() : beforeEdit.getCarColor()),
@@ -260,7 +257,6 @@ public class DriverManager {
                 driver.getDriver().getPhoneNumber(),
                 driver.getDriver().getPhotoUrl(),
                 driver.getDriver().getRating(),
-                driver.getDriver().isLicense(),
                 driver.getDriver().getCarName(),
                 driver.getDriver().getCarNumber(),
                 driver.getDriver().getCarColor()

@@ -5,7 +5,6 @@ CREATE TABLE drivers
     phone_number TEXT        NOT NULL,
     photo_url    TEXT        NOT NULL,
     rating       FLOAT       NOT NULL CHECK ( rating <= 5 AND rating > 0 ) DEFAULT 4.7,
-    license      BOOLEAN     NOT NULL                                      DEFAULT FALSE,
     car_name     TEXT        NOT NULL,
     car_number   TEXT        NOT NULL,
     car_color    TEXT        NOT NULL,

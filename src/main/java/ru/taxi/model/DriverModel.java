@@ -13,7 +13,6 @@ public class DriverModel {
     private String phoneNumber;
     private String photoUrl;
     private float rating;
-    private boolean license;
     private String carName;
     private String carNumber;
     private String carColor;

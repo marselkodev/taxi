@@ -12,7 +12,6 @@ public class DriverSaveRequestDTO {
     private String name;
     private String phoneNumber;
     private String photoUrl;
-    private boolean license;
     private String carName;
     private String carNumber;
     private String carColor;

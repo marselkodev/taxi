@@ -17,7 +17,6 @@ public class DriverRowMapper implements RowMapper<DriverModel> {
                 rs.getString("phone_number"),
                 rs.getString("photo_url"),
                 rs.getFloat("rating"),
-                rs.getBoolean("license"),
                 rs.getString("car_Name"),
                 rs.getString("car_number"),
                 rs.getString("car_color"));

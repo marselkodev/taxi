@@ -19,7 +19,6 @@ public class DriverGetByIdResponseDTO {
         private String phoneNumber;
         private String photoUrl;
         private double rating;
-        private boolean license;
         private String carName;
         private String carNumber;
         private String carColor;
