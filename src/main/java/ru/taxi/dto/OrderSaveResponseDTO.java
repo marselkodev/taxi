@@ -17,6 +17,8 @@ public class OrderSaveResponseDTO {
         private long id;
         private String addressFrom;
         private String addressTo;
+        private String driverComment;
+        private boolean babyChair;
         private double distance;
         private double duration;
         private double price;

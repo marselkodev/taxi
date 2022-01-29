@@ -13,7 +13,7 @@ public class OrderController {
     private final OrderManager manager;
 
     @PostMapping("/create")
-    public OrderSaveResponseDTO create(@ModelAttribute OrderSaveRequestDTO requestDTO) {
+    public OrderSaveResponseDTO create(@RequestBody OrderSaveRequestDTO requestDTO) {
         return manager.create(requestDTO);
     }
 

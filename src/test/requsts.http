@@ -1,6 +1,9 @@
+###
 http://localhost:8080/drivers/getAll
+
 ###
 http://localhost:8080/drivers/getById?id=3
+
 ###
 POST http://localhost:8080/drivers/save
 Content-Type: application/json
@@ -10,37 +13,44 @@ Content-Type: application/json
   "name": "Maks",
   "phoneNumber": "88005697859",
   "photoUrl": "photo.png",
-  "license": true,
   "carName": "Skoda Rapid",
   "carNumber": "X 407 AB 116",
   "carColor": "orange"
 }
-###
-POST http://localhost:8080/orders/create?addressFrom=Пушкина 17, Казань&addressTo=Мавлютова 17&babyChair=true
-
-###
-POST http://localhost:8080/orders/accept?id=7
-
-###
-GET http://localhost:8080/drivers/getAccept
-
-###
-POST http://localhost:8080/drivers/acceptDriver?id=7&driverId=1
-
-###
-POST http://localhost:8080/drivers/completeOrder?id=7
 
 ###
 POST http://localhost:8080/drivers/save
 Content-Type: application/json
 
 {
-  "id": 5,
-  "phoneNumber": "88005690858"
+  "id": 4,
+  "phoneNumber": "89045687910"
 }
 
 ###
-POST http://localhost:8080/drivers/removeById?id=99
+POST http://localhost:8080/drivers/removeById?id=4
 
 ###
-GET http://localhost:8080/drivers/getStatsById?id=1&saveToXml=true
+POST http://localhost:8080/orders/create
+Content-Type: application/json
+
+{
+  "addressFrom": "Пушкина 17, Казань",
+  "addressTo": "Мавлютова 17",
+  "babyChair": true
+}
+
+###
+POST http://localhost:8080/orders/accept?id=1
+
+###
+GET http://localhost:8080/drivers/getAccept
+
+###
+POST http://localhost:8080/drivers/acceptDriver?id=1&driverId=2
+
+###
+POST http://localhost:8080/drivers/completeOrder?id=1
+
+###
+GET http://localhost:8080/drivers/getStatsById?id=2&saveToXml=true

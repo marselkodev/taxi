@@ -1,6 +1,7 @@
 package ru.taxi.manager;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DriverManager {
@@ -47,6 +52,7 @@ public class DriverManager {
             "Documents" + File.separator + "DriverStats" + File.separator;
 
     public DriverGetAllResponseDTO getAll() {
+        log.info("Method getAll starting");
         final List<DriverModel> drivers = template.query(
                 //language=PostgreSQL
                 """
@@ -71,11 +77,14 @@ public class DriverManager {
                     driver.getCarColor()
             ));
         }
+        log.info("Method getAll finished");
         return responseDTO;
     }
 
     public DriverGetByIdResponseDTO getById(long id) {
+        log.info("Method getByid starting with params id = {}", id);
         if (id == 0) {
+            log.warn("When calling a method getById 0 is not allowed");
             throw new DriverNotFoundException("0 is not allowed");
         }
         try {
@@ -88,6 +97,9 @@ public class DriverManager {
                     Map.of("id", id),
                     driverRowMapper
             );
+
+            log.info("Method getByid finished");
+
             return new DriverGetByIdResponseDTO(new DriverGetByIdResponseDTO.Driver(
                     driver.getId(),
                     driver.getName(),
@@ -99,11 +111,13 @@ public class DriverManager {
                     driver.getCarColor()
             ));
         } catch (EmptyResultDataAccessException e) {
+            log.warn(e.getMessage(), e);
             throw new DriverNotFoundException("driver not found");
         }
     }
 
     public DriverSaveResponseDTO save(DriverSaveRequestDTO requestDTO) {
+        log.info("Method save starting with object requestDTO = {}", requestDTO);
         if (requestDTO.getId() == 0) {
             return create(requestDTO);
         }
@@ -111,7 +125,9 @@ public class DriverManager {
     }
 
     private DriverSaveResponseDTO create(DriverSaveRequestDTO requestDTO) {
+        log.info("Method create starting");
         if (!validatePhone(requestDTO.getPhoneNumber())) {
+            log.warn("invalid number length {}", requestDTO.getPhoneNumber());
             throw new IncorrectDataException("phone number is incorrect");
         }
 
@@ -119,7 +135,7 @@ public class DriverManager {
                 //language=PostgreSQL
                 """
                                         INSERT INTO drivers (name, phone_number, photo_url, car_name, car_number, car_color)
-                                        VALUES (:name, :phone_number, :photo_url, :license, :car_name, :car_number, :car_color)
+                                        VALUES (:name, :phone_number, :photo_url, :car_name, :car_number, :car_color)
                                         RETURNING id, name, phone_number, photo_url, rating, car_name, car_number, car_color
                         """,
                 Map.of("name", requestDTO.getName(),
@@ -130,6 +146,7 @@ public class DriverManager {
                         "car_color", requestDTO.getCarColor()),
                 driverRowMapper
         );
+        log.info("Method create finished");
 
         return new DriverSaveResponseDTO(new DriverSaveResponseDTO.Driver(
                 driver.getId(),
@@ -144,15 +161,14 @@ public class DriverManager {
     }
 
     private boolean validatePhone(String phoneNumber) {
+        log.info("Method validatePhone starting with params phoneNummer = {}", phoneNumber);
         String pattern = "^\\d{11}$";
         return Pattern.matches(pattern, phoneNumber);
     }
 
     private DriverSaveResponseDTO update(DriverSaveRequestDTO requestDTO) {
+        log.info("Method update starting with parameter values = {}", requestDTO);
         final DriverGetByIdResponseDTO.Driver beforeEdit = getById(requestDTO.getId()).getDriver();
-        if (beforeEdit.getId() == 0) {
-            throw new DriverNotFoundException("driver not found");
-        }
         try {
             final DriverModel driver = template.queryForObject(
                     //language=PostgreSQL
@@ -170,6 +186,7 @@ public class DriverManager {
                             "car_color", requestDTO.getCarColor() != null ? requestDTO.getCarColor() : beforeEdit.getCarColor()),
                     driverRowMapper
             );
+            log.info("Method update finished");
 
             return new DriverSaveResponseDTO(new DriverSaveResponseDTO.Driver(
                     driver.getId(),
@@ -182,12 +199,15 @@ public class DriverManager {
                     driver.getCarColor()
             ));
         } catch (EmptyResultDataAccessException e) {
+            log.warn(e.getMessage(), e);
             throw new DriverNotFoundException("driver not found");
         }
     }
 
     public void removeById(long id) {
+        log.info("Method removeById starting with param id = {}", id);
         if (id == 0) {
+            log.warn("When using the method removeById {} is not allowed", id);
             throw new DriverNotFoundException("0 is not allowed");
         }
         //language=PostgreSQL
@@ -196,12 +216,15 @@ public class DriverManager {
                         WHERE id = :id
                         """,
                 Map.of("id", id));
+        log.info("Method removeByid finished");
         if (removed == 0) {
+            log.warn("Failed to delete driver because no driver with id {} was found", id);
             throw new DriverNotFoundException("no driver removed");
         }
     }
 
     public OrderGetAcceptResponseDTO getAccept() {
+        log.info("Method getAccept starting");
         final List<OrderModel> orders = template.query(
                 //language=PostgreSQL
                 """
@@ -228,14 +251,18 @@ public class DriverManager {
                     order.isAccept()
             ));
         }
+        log.info("Method getAccept finished");
         return responseDTO;
     }
 
     public DriverGetByIdResponseDTO acceptDriver(long id, long driverId) {
+        log.info("Method acceptDriver starting with params id {}, driverId {}", id, driverId);
         if (id == 0) {
+            log.warn("When using the method acceptDriver with id = {} is not allowed", id);
             throw new OrderNotFoundException("0 is not allowed");
         }
         if (driverId == 0) {
+            log.warn("When using the method acceptDriver with driverId = {} is not allowed", driverId);
             throw new DriverNotFoundException("0 is not allowed");
         }
         //language=PostgreSQL
@@ -246,11 +273,12 @@ public class DriverManager {
                 Map.of("id", id,
                         "driver_id", driverId));
         if (acceptDriver == 0) {
+            log.warn("Failed to accept order because no order with id {} or no driver with driverId {} was found", id, driverId);
             throw new OrderNotFoundException("no order accept");
         }
 
         final DriverGetByIdResponseDTO driver = getById(driverId);
-
+        log.info("Method acceptDriver finished");
         return new DriverGetByIdResponseDTO(new DriverGetByIdResponseDTO.Driver(
                 driver.getDriver().getId(),
                 driver.getDriver().getName(),
@@ -264,7 +292,9 @@ public class DriverManager {
     }
 
     public void completeOrder(long id) {
+        log.info("Method completeOrder starting with param id = {}", id);
         if (id == 0) {
+            log.warn("When using the method completeOrder with id = {} is not allowed", id);
             throw new OrderNotFoundException("0 is not allowed");
         }
         //language=PostgreSQL
@@ -273,14 +303,18 @@ public class DriverManager {
                         WHERE id = :id
                         """,
                 Map.of("id", id));
+        log.info("Method completeOrder finished");
 
         if (completeOrder == 0) {
+            log.warn("Failed to complete order because no order with id {} was found", id);
             throw new OrderNotFoundException("no order completed");
         }
     }
 
     public StatsGetByIdResponseDTO getStatsById(long driverId, boolean saveToXml) {
+        log.info("Method getStatsById starting with params driverId = {}, saveToXml = {}", driverId, saveToXml);
         if (driverId == 0) {
+            log.warn("When using the method getStatsById with driverId = {} is not allowed", driverId);
             throw new DriverNotFoundException("0 is not allowed");
         }
         final List<StatModel> stats = template.query(
@@ -292,7 +326,9 @@ public class DriverManager {
                 Map.of("driver_id", driverId),
                 statsRowMapper
         );
-        StatsGetByIdResponseDTO responseDTO = new StatsGetByIdResponseDTO(0, 0, 0, 0, 0, 0);
+
+        StatsGetByIdResponseDTO responseDTO = new StatsGetByIdResponseDTO(
+                0, 0, 0, 0, 0, 0);
         for (StatModel stat : stats) {
             if (stat.isBabyChair()) {
                 responseDTO.setCountWithBabyChair(responseDTO.getCountWithBabyChair() + 1);
@@ -307,30 +343,38 @@ public class DriverManager {
         if (saveToXml) {
             saveToXml(driverId, responseDTO);
         }
+        log.info("Method getStatsById finished");
         return responseDTO;
     }
 
     private void saveToXml(long id, StatsGetByIdResponseDTO stat) {
+        log.info("Method saveToXml starting with params id = {}, StatsGetByIdResponseDTO = {}", id, stat);
         Path dir = Paths.get(PATH_TO_STATS + id);
         if (!dir.toFile().exists()) {
             try {
                 Files.createDirectory(dir);
                 Files.createFile(Paths.get(dir.toFile().getAbsolutePath() + File.separator + "stat.xml"));
             } catch (IOException e) {
+                log.warn(e.getMessage(), e);
                 throw new OperationWithXmlException("unable to create stat path");
             }
         }
         Document doc = generateStat(id, stat);
         if (doc != null) {
-            try (FileOutputStream output = new FileOutputStream(PATH_TO_STATS + id + File.separator + "stat.xml")) {
+            try (FileOutputStream output = new FileOutputStream(
+                    PATH_TO_STATS + id + File.separator + "stat.xml")) {
                 writeXml(doc, output);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage(), e);
             }
+            log.info("Method saveToXml finished");
+            return;
         }
+        log.error("Impossible create document");
     }
 
     private Document generateStat(long id, StatsGetByIdResponseDTO stat) {
+        log.info("Method generateStat starting with params id = {}, StatsGetByIdResponseDTO = {}", id, stat);
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         Document doc = null;
         try {
@@ -373,12 +417,14 @@ public class DriverManager {
             duration.setTextContent(String.valueOf(stat.getCountDuration()));
             totalDistanceAndDuration.appendChild(duration);
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            log.warn(e.getMessage(), e);
         }
+        log.info("Method generateStat finished");
         return doc;
     }
 
     private static void writeXml(Document doc, OutputStream output) {
+        log.info("Method writeXml starting with params document = {}, outputStream = {}", doc, output);
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -386,7 +432,8 @@ public class DriverManager {
             StreamResult result = new StreamResult(output);
             transformer.transform(source, result);
         } catch (TransformerException e) {
-            e.printStackTrace();
+            log.warn(e.getMessage(), e);
         }
+        log.info("Method writeXml finished");
     }
 }

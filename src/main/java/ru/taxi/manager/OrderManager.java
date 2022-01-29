@@ -1,6 +1,7 @@
 package ru.taxi.manager;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.taxi.dto.OrderSaveRequestDTO;
@@ -14,6 +15,7 @@ import ru.taxi.rowmapper.OrderRowMapper;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OrderManager {
@@ -25,15 +27,17 @@ public class OrderManager {
     private static final int LANDING = 40;
 
     public OrderSaveResponseDTO create(OrderSaveRequestDTO requestDTO) {
+        log.info("Method create starting with param orderSaveRequestDTO = {}", requestDTO);
         final List<RouteInfo> infos = mapManager.query(requestDTO.getAddressFrom(), requestDTO.getAddressTo());
         if (infos.size() < 1) {
+            log.warn("Route not found");
             throw new RouteCannotCalculateException("route can not calculate");
         }
 
         final RouteInfo info = infos.get(0);
         double distance = info.getDistance() / 1000;
         double duration = info.getDuration() / 60;
-        //TODO: хранить в копейках
+
         double price = ((distance * PRICE_FOR_ONE_KM) + (duration * PRICE_FOR_ONE_MINUTE) + LANDING);
 
         final OrderModel order = template.queryForObject(
@@ -55,11 +59,14 @@ public class OrderManager {
                 ),
                 orderRowMapper
         );
-        //TODO: возвращать бби чайр
+        log.info("Method create finished");
+
         return new OrderSaveResponseDTO(new OrderSaveResponseDTO.Order(
                 order.getId(),
                 order.getAddressFrom(),
                 order.getAddressTo(),
+                order.getDriverComment(),
+                order.isBabyChair(),
                 distance,
                 duration,
                 price,
@@ -68,7 +75,9 @@ public class OrderManager {
     }
 
     public void accept(long id) {
+        log.info("Method accept starting with param id = {}", id);
         if (id == 0) {
+            log.warn("When using the method accept with id = {} is not allowed", id);
             throw new OrderNotFoundException("0 is not allowed");
         }
         //language=PostgreSQL
@@ -78,7 +87,9 @@ public class OrderManager {
                         """,
                 Map.of("id", id));
         if (accept == 0) {
+            log.warn("Failed to accept because no order with id {} was found", id);
             throw new OrderNotFoundException("no order accept");
         }
+        log.info("Method accept finished");
     }
 }
